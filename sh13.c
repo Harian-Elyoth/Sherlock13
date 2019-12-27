@@ -1,4 +1,4 @@
-#include <SDL.h>        
+#include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <pthread.h>
@@ -289,23 +289,21 @@ int main(int argc, char ** argv)
 					if (guiltSel!=-1)
 					{
 						sprintf(sendBuffer,"G %d %d",gId, guiltSel);
-
-					// RAJOUTER DU CODE ICI
+            sprintf(sendBuffer,"G %d %d",gId, guiltSel);
+  					sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 
 					}
 					else if ((objetSel!=-1) && (joueurSel==-1))
 					{
 						sprintf(sendBuffer,"O %d %d",gId, objetSel);
-
-					// RAJOUTER DU CODE ICI
-
+            sprintf(sendBuffer,"O %d %d",gId, objetSel);
+						sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 					}
 					else if ((objetSel!=-1) && (joueurSel!=-1))
 					{
 						sprintf(sendBuffer,"S %d %d %d",gId, joueurSel,objetSel);
-
-					// RAJOUTER DU CODE ICI
-
+            sprintf(sendBuffer,"S %d %d %d",gId, joueurSel,objetSel);
+            sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 					}
 				}
 				else
@@ -321,32 +319,42 @@ int main(int argc, char ** argv)
         	}
 	}
 
-        if (synchro==1)
-        {
+  if (synchro==1)
+  {
                 // pthread_mutex_lock( &mutex );
-                printf("consomme |%s|\n",gbuffer);
+    printf("consomme |%s|\n",gbuffer);
+    int joueurCourant, player, object, value;
 		switch (gbuffer[0])
 		{
 			// Message 'I' : le joueur recoit son Id
 			case 'I':
-				// RAJOUTER DU CODE ICI
+				sscanf(gbuffer + 2, "%d", &gId);
 				break;
 			// Message 'L' : le joueur recoit la liste des joueurs
 			case 'L':
-				// RAJOUTER DU CODE ICI
+				sscanf((gbuffer + 2), "%s %s %s %s", gNames[0], gNames[1], gNames[2], gNames[3]);
 				break;
 			// Message 'D' : le joueur recoit ses trois cartes
 			case 'D':
-				// RAJOUTER DU CODE ICI
+        sscanf((gbuffer + 2), "%d %d %d", &b[0], &b[1], &b[2]);
 				break;
 			// Message 'M' : le joueur recoit le n° du joueur courant
 			// Cela permet d'affecter goEnabled pour autoriser l'affichage du bouton go
 			case 'M':
-				// RAJOUTER DU CODE ICI
+        sscanf(gbuffer+2,"%d",&joueurCourant);
+        if (joueurCourant == gId){
+          goEnabled=1;
+        }
+        else {
+          goEnabled=0;
+        }
 				break;
 			// Message 'V' : le joueur recoit une valeur de tableCartes
 			case 'V':
-				// RAJOUTER DU CODE ICI
+        sscanf(gbuffer+2,"%d %d %d",&player,&object,&value);
+        if (tableCartes[player][object] == -1){
+          tableCartes[player][object] = value;
+        }
 				break;
 		}
 		synchro=0;
