@@ -46,7 +46,7 @@ void *fn_serveur_tcp(void *arg)
         struct sockaddr_in serv_addr, cli_addr;
         int n;
 
-		errno = 0;
+		    errno = 0;
 
         sockfd = socket(AF_INET, SOCK_STREAM, 0);
         if (sockfd<0)
@@ -60,7 +60,7 @@ void *fn_serveur_tcp(void *arg)
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
         serv_addr.sin_port = htons(portno);
-       if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
+        if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
         {
 				(void)fprintf(stderr, "bind error : %s.\n", strerror(errno));	//modification pour afficher le type d'erreur
                 exit(1);
@@ -139,6 +139,75 @@ static void * fn_serveur_tcp (void * p_data)
    return NULL;
 }
 */
+
+void initObjets(){
+  for(int i = 0; i < 8; i++) tableCartes[gId][i] = 0;
+  for(int i = 0; i < 3; i++){
+    switch (b[i])
+    {
+      case 0: // Sebastian Moran
+        tableCartes[gId][7]++;
+        tableCartes[gId][2]++;
+        break;
+      case 1: // Irene Adler
+        tableCartes[gId][7]++;
+        tableCartes[gId][1]++;
+        tableCartes[gId][5]++;
+        break;
+      case 2: // Inspector Lestrade
+        tableCartes[gId][3]++;
+        tableCartes[gId][6]++;
+        tableCartes[gId][4]++;
+        break;
+      case 3: // Inspector Gregson
+        tableCartes[gId][3]++;
+        tableCartes[gId][2]++;
+        tableCartes[gId][4]++;
+        break;
+      case 4: // Inspector Baynes
+        tableCartes[gId][3]++;
+        tableCartes[gId][1]++;
+        break;
+      case 5: // Inspector Bradstreet
+        tableCartes[gId][3]++;
+        tableCartes[gId][2]++;
+        break;
+      case 6: // Inspector Hopkins
+        tableCartes[gId][3]++;
+        tableCartes[gId][0]++;
+        tableCartes[gId][6]++;
+        break;
+      case 7: // Sherlock Holmes
+        tableCartes[gId][0]++;
+        tableCartes[gId][1]++;
+        tableCartes[gId][2]++;
+        break;
+      case 8: // John Watson
+        tableCartes[gId][0]++;
+        tableCartes[gId][6]++;
+        tableCartes[gId][2]++;
+        break;
+      case 9: // Mycroft Holmes
+        tableCartes[gId][0]++;
+        tableCartes[gId][1]++;
+        tableCartes[gId][4]++;
+        break;
+      case 10: // Mrs. Hudson
+        tableCartes[gId][0]++;
+        tableCartes[gId][5]++;
+        break;
+      case 11: // Mary Morstan
+        tableCartes[gId][4]++;
+        tableCartes[gId][5]++;
+        break;
+      case 12: // James Moriarty
+        tableCartes[gId][7]++;
+        tableCartes[gId][1]++;
+        break;
+    }
+  }
+
+}
 
 int main(int argc, char ** argv)
 {
@@ -245,7 +314,7 @@ int main(int argc, char ** argv)
     {
 	if (SDL_PollEvent(&event))
 	{
-		printf("un event\n");
+		// printf("un event\n");
         	switch (event.type)
         	{
             case SDL_QUIT:
@@ -253,12 +322,12 @@ int main(int argc, char ** argv)
                 break;
 			case  SDL_MOUSEBUTTONDOWN:
 				SDL_GetMouseState( &mx, &my );
-				printf("mx=%d my=%d\n",mx,my);
+				// printf("mx=%d my=%d\n",mx,my);
 				if ((mx<200) && (my<50) && (connectEnabled==1))
 				{
 					sprintf(sendBuffer,"C %s %d %s",gClientIpAddress,gClientPort,gName);
 
-					sendMessageToServer(gClientIpAddress, gClientPort, sendBuffer); // RAJOUTER CODE ICI
+					sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer); // RAJOUTER CODE ICI
 
 					connectEnabled=0;
 				}
@@ -288,20 +357,17 @@ int main(int argc, char ** argv)
 					printf("go! joueur=%d objet=%d guilt=%d\n",joueurSel, objetSel, guiltSel);
 					if (guiltSel!=-1)
 					{
-						sprintf(sendBuffer,"G %d %d",gId, guiltSel);
             sprintf(sendBuffer,"G %d %d",gId, guiltSel);
   					sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 
 					}
 					else if ((objetSel!=-1) && (joueurSel==-1))
 					{
-						sprintf(sendBuffer,"O %d %d",gId, objetSel);
             sprintf(sendBuffer,"O %d %d",gId, objetSel);
 						sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 					}
 					else if ((objetSel!=-1) && (joueurSel!=-1))
 					{
-						sprintf(sendBuffer,"S %d %d %d",gId, joueurSel,objetSel);
             sprintf(sendBuffer,"S %d %d %d",gId, joueurSel,objetSel);
             sendMessageToServer(gServerIpAddress,gServerPort,sendBuffer);
 					}
@@ -322,7 +388,7 @@ int main(int argc, char ** argv)
   if (synchro==1)
   {
                 // pthread_mutex_lock( &mutex );
-    printf("consomme |%s|\n",gbuffer);
+    // printf("consomme |%s|\n",gbuffer);
     int joueurCourant, player, object, value;
 		switch (gbuffer[0])
 		{
@@ -337,11 +403,12 @@ int main(int argc, char ** argv)
 			// Message 'D' : le joueur recoit ses trois cartes
 			case 'D':
         sscanf((gbuffer + 2), "%d %d %d", &b[0], &b[1], &b[2]);
+        initObjets();
 				break;
 			// Message 'M' : le joueur recoit le n° du joueur courant
 			// Cela permet d'affecter goEnabled pour autoriser l'affichage du bouton go
 			case 'M':
-        sscanf(gbuffer+2,"%d",&joueurCourant);
+        sscanf(gbuffer + 2,"%d",&joueurCourant);
         if (joueurCourant == gId){
           goEnabled=1;
         }

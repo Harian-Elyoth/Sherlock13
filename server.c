@@ -223,6 +223,10 @@ void broadcastMessage(char *mess)
   }
 }
 
+void finDuJeu(){
+  return;
+}
+
 int main(int argc, char const *argv[]) {
   int sockfd, newsockfd, portno;
   socklen_t clilen;
@@ -237,6 +241,7 @@ int main(int argc, char const *argv[]) {
   int id;
   char reply[256];
 
+  srand (time(NULL));
 
   if (argc < 2) {
       fprintf(stderr,"ERROR, no port provided\n");
@@ -271,12 +276,11 @@ int main(int argc, char const *argv[]) {
 	}
   while (1)
   {
-    printf("J'attends un nouveau client\n\n");
+    // printf("J'attends un nouveau client\n\n");
 
-    newsockfd = accept(sockfd,
-              (struct sockaddr *) &cli_addr,
-              &clilen);
-              printf("Qqn s'est connecté\n\n");
+    newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+
+    // printf("Quelqu'un s'est connecté\n\n");
 
     if (newsockfd < 0){
           error("ERROR on accept");
@@ -320,11 +324,11 @@ int main(int argc, char const *argv[]) {
         broadcastMessage(reply);
         if(nbClients == 4){ //Code rajouté
           for(int i = 0 ; i < 4; i++){
-            sprintf(reply, "%d %d %d %d", deck[3 * i], deck[(3 * i) + 1], deck[(3 * i) + 2], i);
+            sprintf(reply, "D %d %d %d", deck[3 * i], deck[(3 * i) + 1], deck[(3 * i) + 2]);
             sendMessageToClient(tcpClients[i].ipAdress, tcpClients[i].port, reply);
           }
           //On envoie un msg a tout le monde pour definir qui est le joueur courant
-          sprintf(reply,"Le joueur courant est : %s", tcpClients[0].name);
+          sprintf(reply,"M %d", 0);
           broadcastMessage(reply);
           fsmServer = 1;
         }
@@ -342,27 +346,25 @@ int main(int argc, char const *argv[]) {
           sscanf(buffer,"%c %d %d", &com, &id, &guilty_value);
           if(guilty_value == deck[12]){
             printf("Bravo %s, vous avez gagne !!\n", tcpClients[id].name);
+            finDuJeu();
+          }
+          else{
             joueurCourant++;
             if(joueurCourant == 4){
               joueurCourant = 0;
             }
+            sprintf(reply, "M %d", joueurCourant);
+            broadcastMessage(reply);
           }
           break;
 
-        case '0' :
+        case 'O' :
 
           sscanf(buffer, "%c %d %d", &com, &id, &object);
           for( i = 0 ; i < 4 ; i++){
             if( i != id ){
-              if(tableCartes[i][object] > 0){
-                sprintf(reply, "V %d %d %d", i, object, 100);
-                broadcastMessage(reply);
-              }
-              else
-              {
-                sprintf(reply, "V %d %d %d", i, object, 0);
-                broadcastMessage(reply);
-              }
+              sprintf(reply, "V %d %d %d", i, object, tableCartes[i][object]);
+              broadcastMessage(reply);
             }
           }
           joueurCourant++;
@@ -378,7 +380,14 @@ int main(int argc, char const *argv[]) {
           sscanf(buffer, "%c %d %d %d", &com, &id, &player, &object);
           sprintf(reply, "V %d %d %d", player, object, tableCartes[player][object]);
           broadcastMessage(reply);
+          joueurCourant++;
+          if(joueurCourant == 4){
+            joueurCourant = 0;
+          }
+          sprintf(reply, "M %d", joueurCourant);
+          broadcastMessage(reply);
           break;
+
         default:
           break;
       }
