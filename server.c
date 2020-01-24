@@ -363,8 +363,10 @@ int main(int argc, char const *argv[]) {
           sscanf(buffer, "%c %d %d", &com, &id, &object);
           for( i = 0 ; i < 4 ; i++){
             if( i != id ){
-              sprintf(reply, "V %d %d %d", i, object, tableCartes[i][object]);
-              broadcastMessage(reply);
+              if(tablesCartes[i][object] == 0){ // On ne renvois que ceux qui n'en n'ont pas.
+                sprintf(reply, "V %d %d %d", i, object, tableCartes[i][object]);
+                broadcastMessage(reply);
+              }
             }
           }
           joueurCourant++;
