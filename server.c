@@ -5,7 +5,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-
+#include <time.h>
 #include <netdb.h>
 #include <arpa/inet.h>
 
@@ -223,7 +223,10 @@ void broadcastMessage(char *mess)
   }
 }
 
-void finDuJeu(){
+void finDuJeu(char *name){
+  char endBuffer[256];
+  sprintf(endBuffer, "E %s", name);
+  broadcastMessage(endBuffer);
   return;
 }
 
@@ -346,7 +349,7 @@ int main(int argc, char const *argv[]) {
           sscanf(buffer,"%c %d %d", &com, &id, &guilty_value);
           if(guilty_value == deck[12]){
             printf("Bravo %s, vous avez gagne !!\n", tcpClients[id].name);
-            finDuJeu();
+            finDuJeu(tcpClients[id].name);
           }
           else{
             joueurCourant++;

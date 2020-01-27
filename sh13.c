@@ -390,6 +390,8 @@ int main(int argc, char ** argv)
                 // pthread_mutex_lock( &mutex );
     // printf("consomme |%s|\n",gbuffer);
     int joueurCourant, player, object, value;
+    char nomDuGagant[256]; //Fin de partie
+
 		switch (gbuffer[0])
 		{
 			// Message 'I' : le joueur recoit son Id
@@ -423,6 +425,9 @@ int main(int argc, char ** argv)
           tableCartes[player][object] = value;
         }
 				break;
+      case 'E' :
+      sscanf(gbuffer + 2, "%s", nomDuGagant);
+      printf("%s à gagné\n", nomDuGagant);
 		}
 		synchro=0;
                 // pthread_mutex_unlock( &mutex );
