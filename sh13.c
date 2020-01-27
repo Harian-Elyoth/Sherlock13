@@ -428,6 +428,7 @@ int main(int argc, char ** argv)
       case 'E' :
       sscanf(gbuffer + 2, "%s", nomDuGagant);
       printf("%s à gagné\n", nomDuGagant);
+      break;
 		}
 		synchro=0;
                 // pthread_mutex_unlock( &mutex );
