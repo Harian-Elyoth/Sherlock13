@@ -410,25 +410,25 @@ int main(int argc, char ** argv)
 			// Message 'M' : le joueur recoit le n° du joueur courant
 			// Cela permet d'affecter goEnabled pour autoriser l'affichage du bouton go
 			case 'M':
-        sscanf(gbuffer + 2,"%d",&joueurCourant);
-        if (joueurCourant == gId){
-          goEnabled=1;
-        }
-        else {
-          goEnabled=0;
-        }
+        		sscanf(gbuffer + 2,"%d",&joueurCourant);
+        		if (joueurCourant == gId){
+          			goEnabled=1;
+        		}
+				else {
+				goEnabled=0;
+				}
 				break;
 			// Message 'V' : le joueur recoit une valeur de tableCartes
 			case 'V':
-        sscanf(gbuffer+2,"%d %d %d",&player,&object,&value);
-        if (tableCartes[player][object] == -1){
-          tableCartes[player][object] = value;
-        }
+				sscanf(gbuffer+2,"%d %d %d",&player,&object,&value);
+				if (tableCartes[player][object] == -1){
+					tableCartes[player][object] = value;
+				}
 				break;
-      case 'E' :
-      sscanf(gbuffer + 2, "%s", nomDuGagant);
-      printf("%s à gagné\n", nomDuGagant);
-      break;
+			case 'E':
+				sscanf(gbuffer + 2, "%s", nomDuGagant);
+				printf("%s à gagné\n", nomDuGagant);
+			break;
 		}
 		synchro=0;
                 // pthread_mutex_unlock( &mutex );
